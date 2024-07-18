@@ -30,10 +30,10 @@ type Queue struct {
 }
 
 func New(n int) *Queue {
-	return NewWithSnapshot(n, "")
+	return NewWithSnap(n, "")
 }
 
-func NewWithSnapshot(n int, path string) *Queue {
+func NewWithSnap(n int, path string) *Queue {
 	if n <= 0 {
 		n = 1024
 	}
@@ -584,10 +584,6 @@ func (q *Queue) CopyItems() []interface{} {
 	defer q.mu.RUnlock()
 
 	return q.copyItems()
-}
-
-type QueueSnapshot interface {
-	List() []interface{}
 }
 
 // Load 加载队列数据快照
