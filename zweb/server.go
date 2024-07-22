@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/yyliziqiu/zlib/zlog"
-	"github.com/yyliziqiu/zlib/zweb/xresponse"
+	"github.com/yyliziqiu/zlib/zweb/zresponse"
 )
 
 func Run(config Config, routes ...func(engine *gin.Engine)) error {
@@ -46,8 +46,8 @@ func setGinWriter(config Config) {
 
 func createEngine() *gin.Engine {
 	engine := gin.New()
-	engine.NoRoute(xresponse.AbortNotFound)
-	engine.NoMethod(xresponse.AbortMethodNotAllowed)
+	engine.NoRoute(zresponse.AbortNotFound)
+	engine.NoMethod(zresponse.AbortMethodNotAllowed)
 	engine.Use(gin.LoggerWithFormatter(logFormatter))
 	engine.Use(gin.CustomRecovery(recovery))
 	return engine
@@ -69,7 +69,7 @@ func logFormatter(param gin.LogFormatterParams) string {
 
 func recovery(ctx *gin.Context, err interface{}) {
 	_errorLogger.Warnf("Web panic, path: %s, error: %v", ctx.FullPath(), err)
-	xresponse.AbortInternalServerError(ctx)
+	zresponse.AbortInternalServerError(ctx)
 }
 
 func GetAccessLogger() *logrus.Logger {

@@ -1,4 +1,4 @@
-package xresponse
+package zresponse
 
 import (
 	"github.com/yyliziqiu/zlib/zerror"

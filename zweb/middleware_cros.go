@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/yyliziqiu/zlib/zweb/xresponse"
+	"github.com/yyliziqiu/zlib/zweb/zresponse"
 )
 
 type CrosHeaders struct {
@@ -54,6 +54,6 @@ func CrosMiddleware(ctx *gin.Context) {
 	}
 
 	if ctx.Request.Method == http.MethodOptions {
-		xresponse.AbortOK(ctx)
+		zresponse.AbortOK(ctx)
 	}
 }

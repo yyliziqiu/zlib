@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/yyliziqiu/zlib/zerror"
-	"github.com/yyliziqiu/zlib/zweb/xresponse"
+	"github.com/yyliziqiu/zlib/zweb/zresponse"
 )
 
 var ParamError = zerror.New("A0100", "request params error")
@@ -16,9 +16,9 @@ func BindForm(ctx *gin.Context, form interface{}, verbose bool) bool {
 			_errorLogger.Warnf("Bind request params failed, path: %s, form: %v, error: %v.", ctx.FullPath(), form, err)
 		}
 		if verbose {
-			xresponse.Error(ctx, ParamError.Wrap(err))
+			zresponse.Error(ctx, ParamError.Wrap(err))
 		} else {
-			xresponse.Error(ctx, ParamError)
+			zresponse.Error(ctx, ParamError)
 		}
 		return false
 	}
