@@ -25,19 +25,25 @@ func Result(ctx *gin.Context, data interface{}) {
 }
 
 func Error(ctx *gin.Context, err error) {
-	ctx.JSON(errorResponse(err))
+	ctx.JSON(errorResponse(err, false))
 }
 
-func errorResponse(err error) (int, ErrorResult) {
+func VerboseError(ctx *gin.Context, err error) {
+	ctx.JSON(errorResponse(err, true))
+}
+
+func errorResponse(err error, verbose bool) (int, ErrorResult) {
 	var (
 		statusCode = http.StatusBadRequest
 		code       = BadRequestError.Code
-		message    = err.Error()
+		message    = BadRequestError.Message
 	)
 
 	zerr, ok := err.(*zerror.Error)
 	if ok {
 		statusCode, code, message = zerr.HTTP()
+	} else if verbose {
+		message = err.Error()
 	}
 
 	return statusCode, NewErrorResult(code, message)
@@ -56,7 +62,11 @@ func AbortResult(ctx *gin.Context, data interface{}) {
 }
 
 func AbortError(ctx *gin.Context, err error) {
-	ctx.AbortWithStatusJSON(errorResponse(err))
+	ctx.AbortWithStatusJSON(errorResponse(err, false))
+}
+
+func AbortVerboseError(ctx *gin.Context, err error) {
+	ctx.AbortWithStatusJSON(errorResponse(err, true))
 }
 
 func AbortErrorString(ctx *gin.Context, message string) {
