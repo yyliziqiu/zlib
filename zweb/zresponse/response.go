@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/yyliziqiu/zlib/zerror"
 )
+
+// ============ Response ============
 
 func Response(ctx *gin.Context, statusCode int, data interface{}) {
 	ctx.JSON(statusCode, data)
@@ -15,6 +15,8 @@ func Response(ctx *gin.Context, statusCode int, data interface{}) {
 func ResponseError(ctx *gin.Context, statusCode int, code string, message string) {
 	ctx.JSON(statusCode, NewErrorResult(code, message))
 }
+
+// ============ Result ============
 
 func OK(ctx *gin.Context) {
 	ctx.String(http.StatusOK, "")
@@ -28,30 +30,15 @@ func Error(ctx *gin.Context, err error) {
 	ctx.JSON(errorResponse(err, false))
 }
 
-func VerboseError(ctx *gin.Context, err error) {
+func ErrorVerbose(ctx *gin.Context, err error) {
 	ctx.JSON(errorResponse(err, true))
-}
-
-func errorResponse(err error, verbose bool) (int, ErrorResult) {
-	var (
-		statusCode = http.StatusBadRequest
-		code       = BadRequestError.Code
-		message    = BadRequestError.Message
-	)
-
-	zerr, ok := err.(*zerror.Error)
-	if ok {
-		statusCode, code, message = zerr.HTTP()
-	} else if verbose {
-		message = err.Error()
-	}
-
-	return statusCode, NewErrorResult(code, message)
 }
 
 func ErrorString(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusBadRequest, NewErrorResult(BadRequestError.Code, message))
 }
+
+// ============ Abort ============
 
 func AbortOK(ctx *gin.Context) {
 	ctx.AbortWithStatus(http.StatusOK)
@@ -65,7 +52,7 @@ func AbortError(ctx *gin.Context, err error) {
 	ctx.AbortWithStatusJSON(errorResponse(err, false))
 }
 
-func AbortVerboseError(ctx *gin.Context, err error) {
+func AbortErrorVerbose(ctx *gin.Context, err error) {
 	ctx.AbortWithStatusJSON(errorResponse(err, true))
 }
 
@@ -73,26 +60,28 @@ func AbortErrorString(ctx *gin.Context, message string) {
 	ctx.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResult(BadRequestError.Code, message))
 }
 
+// ============ Handle ============
+
 func AbortBadRequest(ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResultWithError(BadRequestError))
+	ctx.AbortWithStatusJSON(errorResponse(BadRequestError, false))
 }
 
 func AbortUnauthorized(ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(http.StatusUnauthorized, NewErrorResultWithError(UnauthorizedError))
+	ctx.AbortWithStatusJSON(errorResponse(UnauthorizedError, false))
 }
 
 func AbortForbidden(ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(http.StatusForbidden, NewErrorResultWithError(ForbiddenError))
+	ctx.AbortWithStatusJSON(errorResponse(ForbiddenError, false))
 }
 
 func AbortNotFound(ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(http.StatusNotFound, NewErrorResultWithError(NotFoundError))
+	ctx.AbortWithStatusJSON(errorResponse(NotFoundError, false))
 }
 
 func AbortMethodNotAllowed(ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(http.StatusMethodNotAllowed, NewErrorResultWithError(MethodNotAllowedError))
+	ctx.AbortWithStatusJSON(errorResponse(MethodNotAllowedError, false))
 }
 
 func AbortInternalServerError(ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResultWithError(InternalServerErrorError))
+	ctx.AbortWithStatusJSON(errorResponse(InternalServerErrorError, false))
 }

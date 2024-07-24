@@ -1,6 +1,8 @@
 package zresponse
 
 import (
+	"net/http"
+
 	"github.com/yyliziqiu/zlib/zerror"
 )
 
@@ -16,12 +18,12 @@ C开头 三方服务错误
 */
 
 var (
-	BadRequestError          = zerror.New("A0001", "Bad Request")
-	UnauthorizedError        = zerror.New("A0002", "Unauthorized")
-	ForbiddenError           = zerror.New("A0003", "Forbidden")
-	NotFoundError            = zerror.New("A0004", "Not Found")
-	MethodNotAllowedError    = zerror.New("A0005", "Method Not Allowed")
-	InternalServerErrorError = zerror.New("B0001", "Internal Server Error")
+	BadRequestError          = zerror.New("A0001", "Bad Request").StatusCode(http.StatusBadRequest)
+	UnauthorizedError        = zerror.New("A0002", "Unauthorized").StatusCode(http.StatusUnauthorized)
+	ForbiddenError           = zerror.New("A0003", "Forbidden").StatusCode(http.StatusForbidden)
+	NotFoundError            = zerror.New("A0004", "Not Found").StatusCode(http.StatusNotFound)
+	MethodNotAllowedError    = zerror.New("A0005", "Method Not Allowed").StatusCode(http.StatusMethodNotAllowed)
+	InternalServerErrorError = zerror.New("B0001", "Internal Server Error").StatusCode(http.StatusInternalServerError)
 )
 
 type ErrorResult struct {
@@ -38,4 +40,21 @@ func NewErrorResult(code string, message string) ErrorResult {
 
 func NewErrorResultWithError(err *zerror.Error) ErrorResult {
 	return NewErrorResult(err.Code, err.Message)
+}
+
+func errorResponse(err error, verbose bool) (int, ErrorResult) {
+	var (
+		statusCode = http.StatusBadRequest
+		code       = BadRequestError.Code
+		message    = BadRequestError.Message
+	)
+
+	zerr, ok := err.(*zerror.Error)
+	if ok {
+		statusCode, code, message = zerr.HTTP()
+	} else if verbose {
+		message = err.Error()
+	}
+
+	return statusCode, NewErrorResult(code, message)
 }

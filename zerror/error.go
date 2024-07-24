@@ -6,6 +6,8 @@ import (
 )
 
 type Error struct {
+	statusCode int
+
 	Code    string
 	Message string
 }
@@ -21,44 +23,53 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("code: %s, message: %s", e.Code, e.Message)
 }
 
+func (e *Error) clone(message string) *Error {
+	return &Error{
+		statusCode: e.statusCode,
+		Code:       e.Code,
+		Message:    message,
+	}
+}
+
 func (e *Error) With(v interface{}) *Error {
-	err := &Error{Code: e.Code}
+	message := ""
 	switch v.(type) {
 	case error:
-		err.Message = v.(error).Error()
+		message = v.(error).Error()
 	case string:
-		err.Message = v.(string)
+		message = v.(string)
 	default:
-		err.Message = fmt.Sprintf("%v", v)
+		message = fmt.Sprintf("%v", v)
 	}
-	return err
+	return e.clone(message)
 }
 
 func (e *Error) Wrap(err error) *Error {
-	return &Error{
-		Code:    e.Code,
-		Message: fmt.Sprintf("%s [%v]", e.Message, err),
-	}
+	return e.clone(fmt.Sprintf("%s [%v]", e.Message, err))
 }
 
 func (e *Error) Format(message string, a ...interface{}) *Error {
-	return &Error{
-		Code:    e.Code,
-		Message: fmt.Sprintf(message, a...),
-	}
+	return e.clone(fmt.Sprintf(message, a...))
 }
 
 func (e *Error) Fields(a ...interface{}) *Error {
-	return &Error{
-		Code:    e.Code,
-		Message: fmt.Sprintf(e.Message, a...),
-	}
+	return e.clone(fmt.Sprintf(e.Message, a...))
+}
+
+func (e *Error) StatusCode(code int) *Error {
+	e.statusCode = code
+	return e
 }
 
 func (e *Error) HTTP() (int, string, string) {
+	if e.statusCode != 0 {
+		return e.statusCode, e.Code, e.Message
+	}
+
 	statusCode := http.StatusBadRequest
 	if e.Code[0] != 'A' {
 		statusCode = http.StatusInternalServerError
 	}
+
 	return statusCode, e.Code, e.Message
 }
