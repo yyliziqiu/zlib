@@ -8,6 +8,15 @@ import (
 	"strings"
 )
 
+type HTTPLog struct {
+	Request      *http.Request
+	RequestBody  []byte
+	Response     *http.Response
+	ResponseBody []byte
+	Error        error
+	Cost         string
+}
+
 type ResponseError struct {
 	status int
 	errstr string

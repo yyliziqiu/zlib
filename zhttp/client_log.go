@@ -4,26 +4,29 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
 	"strings"
 )
 
-func (cli *Client) logCheck(log string) string {
-	if cli.logLength <= 0 {
-		return ""
+func (cli *Client) logHTTP(log HTTPLog) {
+	if cli.logger == nil {
+		return
 	}
 
-	if len(log) > cli.logLength {
-		log = log[:cli.logLength]
+	headers, reqBody, resBody := SerializeHeader(log.Request.Header), "", ""
+	if len(log.RequestBody) > 0 {
+		reqBody = string(log.RequestBody)
+	}
+	if len(log.ResponseBody) > 0 {
+		resBody = string(log.ResponseBody)
 	}
 
-	if cli.logEscape {
-		log = strings.ReplaceAll(log, "\t", "\\t")
-		log = strings.ReplaceAll(log, "\r", "\\r")
-		log = strings.ReplaceAll(log, "\n", "\\n")
+	if log.Error == nil {
+		cli.logInfo("Response(%d Succeed), URL: %s, headers: %s, request: %s, response: %s, cost: %s.",
+			log.Response.StatusCode, log.Request.URL, headers, reqBody, resBody, log.Cost)
+	} else {
+		cli.logWarn("Response(%d Failed), URL: %s, headers: %s, request: %s, response: %s, error: %v, cost: %s.",
+			log.Response.StatusCode, log.Request.URL, headers, reqBody, resBody, log.Error, log.Cost)
 	}
-
-	return log
 }
 
 func (cli *Client) logInfo(format string, args ...interface{}) {
@@ -42,22 +45,22 @@ func (cli *Client) logWarn(format string, args ...interface{}) {
 	cli.logger.Warn(message)
 }
 
-func (cli *Client) logHTTP(url2 *url.URL, reqHeader http.Header, reqBody []byte, resBody []byte, err error, cost string) {
-	if cli.logger == nil {
-		return
+func (cli *Client) logCheck(log string) string {
+	if cli.logLength <= 0 {
+		return ""
 	}
-	hs, b1, b2 := SerializeHeader(reqHeader), "-", "-"
-	if len(reqBody) > 0 {
-		b1 = string(reqBody)
+
+	if len(log) > cli.logLength {
+		log = log[:cli.logLength]
 	}
-	if len(resBody) > 0 {
-		b2 = string(resBody)
+
+	if cli.logEscape {
+		log = strings.ReplaceAll(log, "\t", "\\t")
+		log = strings.ReplaceAll(log, "\r", "\\r")
+		log = strings.ReplaceAll(log, "\n", "\\n")
 	}
-	if err == nil {
-		cli.logInfo("Succeed response, URL: %s, header: %s, request: %s, response: %s, cost: %s.", url2, hs, b1, b2, cost)
-	} else {
-		cli.logWarn("Failed response, URL: %s, header: %s, request: %s, response: %s, error: %v, cost: %s.", url2, hs, b1, b2, err, cost)
-	}
+
+	return log
 }
 
 func (cli *Client) dumpRequest(req *http.Request) {

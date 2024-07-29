@@ -195,7 +195,14 @@ func (cli *Client) Get(path string, query url.Values, header http.Header, out in
 
 	body, err := cli.handleResponse(res, out)
 
-	cli.logHTTP(req.URL, header, nil, body, err, timer.Stops())
+	cli.logHTTP(HTTPLog{
+		Request:      req,
+		RequestBody:  nil,
+		Response:     res,
+		ResponseBody: body,
+		Error:        err,
+		Cost:         timer.Stops(),
+	})
 
 	return err
 }
@@ -221,7 +228,14 @@ func (cli *Client) PostForm(path string, query url.Values, header http.Header, i
 	resBody, err := cli.handleResponse(res, out)
 
 	reqBody, _ = url.QueryUnescape(reqBody)
-	cli.logHTTP(req.URL, header, []byte(reqBody), resBody, err, timer.Stops())
+	cli.logHTTP(HTTPLog{
+		Request:      req,
+		RequestBody:  []byte(reqBody),
+		Response:     res,
+		ResponseBody: resBody,
+		Error:        err,
+		Cost:         timer.Stops(),
+	})
 
 	return err
 }
@@ -252,7 +266,14 @@ func (cli *Client) PostJSON(path string, query url.Values, header http.Header, i
 
 	resBody, err := cli.handleResponse(res, out)
 
-	cli.logHTTP(req.URL, header, reqBody, resBody, err, timer.Stops())
+	cli.logHTTP(HTTPLog{
+		Request:      req,
+		RequestBody:  reqBody,
+		Response:     res,
+		ResponseBody: resBody,
+		Error:        err,
+		Cost:         timer.Stops(),
+	})
 
 	return err
 }
