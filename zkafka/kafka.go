@@ -15,7 +15,8 @@ var (
 func Init(configs ...Config) error {
 	_configs = make(map[string]Config, 16)
 	for _, config := range configs {
-		_configs[config.Id] = config.Default()
+		conf := config.Default()
+		_configs[conf.Id] = conf
 	}
 
 	_consumers = make(map[string]*kafka.Consumer, 8)

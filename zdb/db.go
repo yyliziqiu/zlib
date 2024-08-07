@@ -20,7 +20,8 @@ var (
 func Init(configs ...Config) error {
 	_configs = make(map[string]Config, 8)
 	for _, config := range configs {
-		_configs[config.Id] = config.Default()
+		conf := config.Default()
+		_configs[conf.Id] = conf
 	}
 
 	_sqlDBS = make(map[string]*sql.DB, 8)
