@@ -16,8 +16,8 @@ type Config struct {
 	Password     string   // must
 	EnableLogger bool     // optional
 
-	Logger *logrus.Logger // optional
-	Client elastic.Doer   // optional
+	Logger *logrus.Logger `json:"-"` // optional
+	Client elastic.Doer   `json:"-"` // optional
 }
 
 func (c Config) Default() Config {

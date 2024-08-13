@@ -28,7 +28,7 @@ type Config struct {
 
 	// only valid when use gorm
 	EnableORM                       bool           // optional
-	ORMLogger                       *logrus.Logger // optional
+	ORMLogger                       *logrus.Logger `json:"-"` // optional
 	ORMLogLevel                     int            // optional
 	ORMLogSlowThreshold             time.Duration  // optional
 	ORMLogParameterizedQueries      bool           // optional

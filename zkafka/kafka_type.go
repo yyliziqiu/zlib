@@ -26,8 +26,8 @@ type Config struct {
 	// producer
 	Topic                 string                     // must
 	RequestRequiredAcks   int                        // optional
-	DeliveredCallback     func(kafka.TopicPartition) // optional
-	DeliverFailedCallback func(kafka.TopicPartition) // optional
+	DeliveredCallback     func(kafka.TopicPartition) `json:"-"` // optional
+	DeliverFailedCallback func(kafka.TopicPartition) `json:"-"` // optional
 
 	// consumer
 	Topics                 []string // must
