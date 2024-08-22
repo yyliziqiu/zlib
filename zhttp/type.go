@@ -9,6 +9,7 @@ import (
 )
 
 type HTTPLog struct {
+	Method       string
 	Request      *http.Request
 	RequestBody  []byte
 	Response     *http.Response

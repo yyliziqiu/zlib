@@ -21,15 +21,15 @@ func WithTimeout(timeout time.Duration) Option {
 	}
 }
 
-func WithFormat(format string) Option {
+func WithLogger(logger *logrus.Logger) Option {
 	return func(cli *Client) {
-		cli.format = format
+		cli.logger = logger
 	}
 }
 
-func WithBaseURL(baseURL string) Option {
+func WithFormat(format string) Option {
 	return func(cli *Client) {
-		cli.baseURL = baseURL
+		cli.format = format
 	}
 }
 
@@ -45,9 +45,9 @@ func WithDumps(enabled bool) Option {
 	}
 }
 
-func WithLogger(logger *logrus.Logger) Option {
+func WithBaseURL(baseURL string) Option {
 	return func(cli *Client) {
-		cli.logger = logger
+		cli.baseURL = baseURL
 	}
 }
 
