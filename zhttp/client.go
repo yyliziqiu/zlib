@@ -264,6 +264,35 @@ func (cli *Client) Delete(path string, query url.Values, header http.Header, out
 	return cli.get(http.MethodDelete, path, query, header, out)
 }
 
+func (cli *Client) GetBinary(path string, query url.Values, header http.Header) ([]byte, string, error) {
+	req, err := cli.newRequest(http.MethodGet, path, query, header, nil)
+	if err != nil {
+		return nil, "", err
+	}
+
+	timer := zutil.NewTimer()
+
+	res, err := cli.doRequest(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer res.Body.Close()
+
+	bs, err := io.ReadAll(res.Body)
+
+	cli.logHTTP(HTTPLog{
+		Method:       http.MethodGet,
+		Request:      req,
+		RequestBody:  nil,
+		Response:     res,
+		ResponseBody: nil,
+		Error:        err,
+		Cost:         timer.Stops(),
+	})
+
+	return bs, res.Header.Get("Content-Type"), err
+}
+
 func (cli *Client) PostJSON(path string, query url.Values, header http.Header, in interface{}, out interface{}) error {
 	return cli.Post(path, query, header, in, out)
 }
@@ -396,35 +425,6 @@ func (cli *Client) writeFormFile(writer *multipart.Writer, key string, path stri
 	return nil
 }
 
-func (cli *Client) GetBinary(path string, query url.Values, header http.Header) ([]byte, string, error) {
-	req, err := cli.newRequest(http.MethodGet, path, query, header, nil)
-	if err != nil {
-		return nil, "", err
-	}
-
-	timer := zutil.NewTimer()
-
-	res, err := cli.doRequest(req)
-	if err != nil {
-		return nil, "", err
-	}
-	defer res.Body.Close()
-
-	bs, err := io.ReadAll(res.Body)
-
-	cli.logHTTP(HTTPLog{
-		Method:       http.MethodGet,
-		Request:      req,
-		RequestBody:  nil,
-		Response:     res,
-		ResponseBody: nil,
-		Error:        err,
-		Cost:         timer.Stops(),
-	})
-
-	return bs, res.Header.Get("Content-Type"), err
-}
-
 func (cli *Client) PostBinary(path string, query url.Values, header http.Header, mimeType string, in io.Reader, out interface{}) error {
 	req, err := cli.newRequest(http.MethodPost, path, query, header, in)
 	if err != nil {
@@ -447,79 +447,6 @@ func (cli *Client) PostBinary(path string, query url.Values, header http.Header,
 		Method:       http.MethodPost,
 		Request:      req,
 		RequestBody:  nil,
-		Response:     res,
-		ResponseBody: resBody,
-		Error:        err,
-		Cost:         timer.Stops(),
-	})
-
-	return err
-}
-
-func (cli *Client) PostFile(path string, query url.Values, header http.Header, values map[string]string, filekey string, filepath string, out interface{}) error {
-	files := map[string]string{filekey: filepath}
-	return cli.PostFormData(path, query, header, values, files, out)
-}
-
-func (cli *Client) PostStream(path string, query url.Values, header http.Header, values map[string]string, filekey string, filename string, stream io.Reader, out interface{}) error {
-	var (
-		buf    bytes.Buffer
-		writer = multipart.NewWriter(&buf)
-	)
-
-	if len(values) > 0 {
-		for key, value := range values {
-			err := writer.WriteField(key, value)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	if stream != nil {
-		part, err := writer.CreateFormFile(filekey, filename)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(part, stream)
-		if err != nil {
-			return err
-		}
-	}
-
-	err := writer.Close()
-	if err != nil {
-		return err
-	}
-
-	req, err := cli.newRequest(http.MethodPost, path, query, header, &buf)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	timer := zutil.NewTimer()
-
-	res, err := cli.doRequest(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	resBody, err := cli.handleResponse(res, out)
-
-	var bod []byte
-	if len(values) == 0 {
-		bod = []byte(fmt.Sprintf(`{"%s":"%s"}`, filekey, filename))
-	} else {
-		values[filekey] = filename
-		bod, _ = json.Marshal(values)
-	}
-	cli.logHTTP(HTTPLog{
-		Method:       http.MethodPost,
-		Request:      req,
-		RequestBody:  bod,
 		Response:     res,
 		ResponseBody: resBody,
 		Error:        err,
