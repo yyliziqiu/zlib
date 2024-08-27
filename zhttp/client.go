@@ -278,7 +278,8 @@ func (cli *Client) GetBinary(path string, query url.Values, header http.Header) 
 	}
 	defer res.Body.Close()
 
-	bs, err := io.ReadAll(res.Body)
+	dat, err := io.ReadAll(res.Body)
+	typ := res.Header.Get("Content-Type")
 
 	cli.logHTTP(HTTPLog{
 		Method:       http.MethodGet,
@@ -290,7 +291,7 @@ func (cli *Client) GetBinary(path string, query url.Values, header http.Header) 
 		Cost:         timer.Stops(),
 	})
 
-	return bs, res.Header.Get("Content-Type"), err
+	return dat, typ, err
 }
 
 func (cli *Client) PostJSON(path string, query url.Values, header http.Header, in interface{}, out interface{}) error {
