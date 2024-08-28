@@ -80,3 +80,11 @@ func (k KVS) Id() string {
 func (k KVS) Name() string {
 	return k.Get("name")
 }
+
+func (k KVS) Enabled() bool {
+	return k.Bool("enabled")
+}
+
+func (k KVS) Disabled() bool {
+	return k.Bool("disabled")
+}
