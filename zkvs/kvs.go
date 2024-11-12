@@ -48,6 +48,46 @@ func (k KVS) ShouldFloat64(key string) (float64, bool) {
 	return zconv.S2F64(val), true
 }
 
+func (k KVS) MustGet(key string, def string) string {
+	val, ok := k[key]
+	if !ok {
+		return def
+	}
+	return strings.TrimSpace(val)
+}
+
+func (k KVS) MustBool(key string, def bool) bool {
+	val, ok := k.ShouldGet(key)
+	if !ok {
+		return def
+	}
+	return zconv.S2B(val)
+}
+
+func (k KVS) MustInt(key string, def int) int {
+	val, ok := k.ShouldGet(key)
+	if !ok {
+		return def
+	}
+	return zconv.S2I(val)
+}
+
+func (k KVS) MustInt64(key string, def int64) int64 {
+	val, ok := k.ShouldGet(key)
+	if !ok {
+		return def
+	}
+	return zconv.S2I64(val)
+}
+
+func (k KVS) MustFloat64(key string, def float64) float64 {
+	val, ok := k.ShouldGet(key)
+	if !ok {
+		return def
+	}
+	return zconv.S2F64(val)
+}
+
 func (k KVS) Get(key string) string {
 	val, _ := k.ShouldGet(key)
 	return val
