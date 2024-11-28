@@ -84,8 +84,56 @@ func (k KVS) Float64N(key string, def float64) float64 {
 
 // 3
 
+var lower = strings.ToLower
+
+func (k KVS) StringV(key string) (string, bool) {
+	return k.String(lower(key))
+}
+
+func (k KVS) BoolV(key string) (bool, bool) {
+	return k.Bool(lower(key))
+}
+
+func (k KVS) IntV(key string) (int, bool) {
+	return k.Int(lower(key))
+}
+
+func (k KVS) Int64V(key string) (int64, bool) {
+	return k.Int64(lower(key))
+}
+
+func (k KVS) Float64V(key string) (float64, bool) {
+	return k.Float64(lower(key))
+}
+
+func (k KVS) StringNV(key string, def string) string {
+	return k.StringN(lower(key), def)
+}
+
+func (k KVS) BoolNV(key string, def bool) bool {
+	return k.BoolN(lower(key), def)
+}
+
+func (k KVS) IntNV(key string, def int) int {
+	return k.IntN(lower(key), def)
+}
+
+func (k KVS) Int64NV(key string, def int64) int64 {
+	return k.Int64N(lower(key), def)
+}
+
+func (k KVS) Float64NV(key string, def float64) float64 {
+	return k.Float64N(lower(key), def)
+}
+
+// 4
+
 func (k KVS) Get(key string) string {
 	return k.StringN(key, "")
+}
+
+func (k KVS) GetV(key string) string {
+	return k.Get(lower(key))
 }
 
 func (k KVS) Id() string {
