@@ -392,7 +392,6 @@ func (cli *Client) PostFormData(path string, query url.Values, header http.Heade
 	} else {
 		bod, _ = json.Marshal(cpy)
 	}
-
 	cli.logHTTP(HTTPLog{
 		Method:       http.MethodPost,
 		Request:      req,
