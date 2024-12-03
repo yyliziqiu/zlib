@@ -63,7 +63,6 @@ func (cli *Client) postStream(
 	if err != nil {
 		return err
 	}
-
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	timer := zutil.NewTimer()

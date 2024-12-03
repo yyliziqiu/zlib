@@ -24,21 +24,25 @@ const (
 )
 
 type Client struct {
-	client        *http.Client                   //
+	client        *http.Client
 	logger        *logrus.Logger                 // 如果为 nil，则不记录日志
-	format        string                         //
-	error         error                          // 不能是指针
+	format        string                         // 响应报文格式
+	error         error                          // 响应失败时的 JSON 结构。在响应成功和失败时 JSON 结构不一致时设置，不能是指针
 	dumps         bool                           // 将 HTTP 报文打印到控制台
-	baseURL       string                         //
-	logLength     int                            // 日志最大长度
-	logEscape     bool                           // 替换日志中的特殊字符
+	baseURL       string                         // URL 前缀
+	logLength     int                            // 最大日志长度
+	logEscape     bool                           // 是否转换日志中的特殊字符
 	requestBefore func(req *http.Request)        // 在发送请求前调用
 	responseAfter func(res *http.Response) error // 在接收响应后调用
 }
 
 func New(options ...Option) *Client {
+	cli := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
 	client := &Client{
-		client:        &http.Client{Timeout: 5 * time.Second},
+		client:        cli,
 		logger:        nil,
 		format:        FormatJSON,
 		error:         nil,
@@ -222,7 +226,6 @@ func (cli *Client) post(method string, path string, query url.Values, header htt
 	if err != nil {
 		return err
 	}
-
 	req.Header.Set("Content-Type", "application/json")
 
 	timer := zutil.NewTimer()
@@ -305,7 +308,6 @@ func (cli *Client) PostForm(path string, query url.Values, header http.Header, i
 	if err != nil {
 		return err
 	}
-
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	timer := zutil.NewTimer()
@@ -346,7 +348,6 @@ func (cli *Client) PostFormData(path string, query url.Values, header http.Heade
 			}
 		}
 	}
-
 	if len(files) > 0 {
 		for key, file := range files {
 			err := cli.writeFormFile(writer, key, file)
@@ -355,7 +356,6 @@ func (cli *Client) PostFormData(path string, query url.Values, header http.Heade
 			}
 		}
 	}
-
 	err := writer.Close()
 	if err != nil {
 		return err
@@ -365,7 +365,6 @@ func (cli *Client) PostFormData(path string, query url.Values, header http.Heade
 	if err != nil {
 		return err
 	}
-
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	timer := zutil.NewTimer()
@@ -393,6 +392,7 @@ func (cli *Client) PostFormData(path string, query url.Values, header http.Heade
 	} else {
 		bod, _ = json.Marshal(cpy)
 	}
+
 	cli.logHTTP(HTTPLog{
 		Method:       http.MethodPost,
 		Request:      req,
@@ -431,7 +431,6 @@ func (cli *Client) PostBinary(path string, query url.Values, header http.Header,
 	if err != nil {
 		return err
 	}
-
 	req.Header.Set("Content-Type", mimeType)
 
 	timer := zutil.NewTimer()

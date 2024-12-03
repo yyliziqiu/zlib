@@ -2,6 +2,7 @@ package zhttp
 
 import (
 	"net/http"
+	"net/http/cookiejar"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -15,9 +16,16 @@ func WithClient(client *http.Client) Option {
 	}
 }
 
+func WithCookie(o *cookiejar.Options) Option {
+	return func(cli *Client) {
+		jar, _ := cookiejar.New(o)
+		cli.client.Jar = jar
+	}
+}
+
 func WithTimeout(timeout time.Duration) Option {
 	return func(cli *Client) {
-		cli.client = &http.Client{Timeout: timeout}
+		cli.client.Timeout = timeout
 	}
 }
 

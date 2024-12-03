@@ -21,10 +21,10 @@ func (cli *Client) logHTTP(log HTTPLog) {
 	}
 
 	if log.Error == nil {
-		cli.logInfo("Response(Success %d), method: %s, URL: %s, headers: %s, request: %s, response: %s, cost: %s.",
+		cli.logInfo("Request succeed(%d), method: %s, url: %s, header: %s, request: %s, response: %s, cost: %s.",
 			log.Response.StatusCode, log.Method, log.Request.URL, headers, reqBody, resBody, log.Cost)
 	} else {
-		cli.logWarn("Response(Failure %d), method: %s, URL: %s, headers: %s, request: %s, response: %s, error: %v, cost: %s.",
+		cli.logWarn("Request failed(%d), method: %s, url: %s, header: %s, request: %s, response: %s, error: %v, cost: %s.",
 			log.Response.StatusCode, log.Method, log.Request.URL, headers, reqBody, resBody, log.Error, log.Cost)
 	}
 }
