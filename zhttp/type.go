@@ -22,7 +22,7 @@ func newResponseError(status int, errstr string) *ResponseError {
 }
 
 func (e ResponseError) Error() string {
-	return fmt.Sprintf("status code [%d], message [%s]", e.status, e.errstr)
+	return fmt.Sprintf("[%d] %s", e.status, e.errstr)
 }
 
 type HTTPLog struct {

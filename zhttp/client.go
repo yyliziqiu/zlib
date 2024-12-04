@@ -143,27 +143,25 @@ func (cli *Client) handleJSONResponse(statusCode int, body []byte, out interface
 				}
 			}
 		}
+		return nil
 	} else {
 		if cli.error != nil {
 			ret := reflect.New(reflect.TypeOf(cli.error)).Interface()
 			err := json.Unmarshal(body, ret)
-			if err != nil {
-				return fmt.Errorf("unmarshal response error [%v]", err)
+			if err == nil {
+				return ret.(error)
 			}
-			return ret.(error)
 		} else if out != nil {
 			err := json.Unmarshal(body, out)
-			if err != nil {
-				return fmt.Errorf("unmarshal response error [%v]", err)
+			if err == nil {
+				err2, ok2 := out.(error)
+				if ok2 {
+					return err2
+				}
 			}
-			err2, ok2 := out.(error)
-			if ok2 {
-				return err2
-			}
-			return newResponseError(statusCode, string(body))
 		}
+		return newResponseError(statusCode, string(body))
 	}
-	return nil
 }
 
 func (cli *Client) handleTextResponse(statusCode int, body []byte, out interface{}) error {
