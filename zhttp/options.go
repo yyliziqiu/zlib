@@ -100,84 +100,53 @@ func WithResponseAfter(f func(res *http.Response) error) Option {
 }
 
 func Cookie(o *cookiejar.Options) Option {
-	return func(cli *Client) {
-		jar, _ := cookiejar.New(o)
-		cli.client.Jar = jar
-	}
+	return WithCookie(o)
 }
 
 func Timeout(timeout time.Duration) Option {
-	return func(cli *Client) {
-		cli.client.Timeout = timeout
-	}
+	return WithTimeout(timeout)
 }
 
 func Logger(logger *logrus.Logger) Option {
-	return func(cli *Client) {
-		cli.logger = logger
-	}
+	return WithLogger(logger)
 }
 
 func Format(format string) Option {
-	return func(cli *Client) {
-		cli.format = format
-	}
+	return WithFormat(format)
 }
 
 func Error(error error) Option {
-	return func(cli *Client) {
-		cli.error = error
-	}
+	return WithError(error)
 }
 
 func Dumps(enabled bool) Option {
-	return func(cli *Client) {
-		cli.dumps = enabled
-	}
+	return WithDumps(enabled)
 }
 
 func BaseURL(baseURL string) Option {
-	return func(cli *Client) {
-		cli.baseURL = baseURL
-	}
+	return WithBaseURL(baseURL)
 }
 
 func LogLength(n int) Option {
-	return func(cli *Client) {
-		cli.logLength = n
-	}
+	return WithLogLength(n)
 }
 
 func LogEscape(enabled bool) Option {
-	return func(cli *Client) {
-		cli.logEscape = enabled
-	}
+	return WithLogEscape(enabled)
 }
 
 func RequestBefore(f func(r *http.Request)) Option {
-	return func(cli *Client) {
-		cli.requestBefore = f
-	}
+	return WithRequestBefore(f)
 }
 
 func BasicAuth(username string, password string) Option {
-	return func(cli *Client) {
-		cli.requestBefore = func(req *http.Request) {
-			req.SetBasicAuth(username, password)
-		}
-	}
+	return WithBasicAuth(username, password)
 }
 
 func BearerToken(token string) Option {
-	return func(cli *Client) {
-		cli.requestBefore = func(req *http.Request) {
-			req.Header.Set("Authorization", "Bearer "+token)
-		}
-	}
+	return WithBearerToken(token)
 }
 
 func ResponseAfter(f func(res *http.Response) error) Option {
-	return func(cli *Client) {
-		cli.responseAfter = f
-	}
+	return WithResponseAfter(f)
 }
