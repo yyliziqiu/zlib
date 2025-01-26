@@ -21,6 +21,10 @@ func newResponseError(status int, errstr string) *ResponseError {
 	}
 }
 
+func (e ResponseError) Status() int {
+	return e.status
+}
+
 func (e ResponseError) Error() string {
 	return fmt.Sprintf("[%d] %s", e.status, e.errstr)
 }
